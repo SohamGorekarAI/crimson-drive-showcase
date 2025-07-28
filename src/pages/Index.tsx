@@ -12,13 +12,10 @@ const Index = () => {
   const [showPreloader, setShowPreloader] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Always show preloader on page load/refresh
   useEffect(() => {
-    // Check if user has seen preloader before
-    const hasSeenPreloader = localStorage.getItem('hasSeenPreloader');
-    if (hasSeenPreloader) {
-      setShowPreloader(false);
-      setIsLoaded(true);
-    }
+    setShowPreloader(true);
+    setIsLoaded(false);
   }, []);
 
   const handlePreloaderComplete = () => {

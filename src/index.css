@@ -45,6 +45,7 @@ All colors MUST be HSL.
     --luxury-dark-gray: 0 0% 10%;       /* Dark Gray #1A1A1A */
     --luxury-light-gray: 0 0% 96%;      /* Light Gray #F5F5F5 */
     --luxury-crimson: 0 100% 40%;       /* Crimson Red #CC0000 */
+    --gold: 45 100% 50%;                /* Ferrari Gold */
     
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(var(--luxury-black)), hsl(var(--luxury-dark-gray)));

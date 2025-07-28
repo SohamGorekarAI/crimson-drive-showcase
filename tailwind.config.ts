@@ -66,7 +66,8 @@ export default {
 				'luxury-black': 'hsl(var(--luxury-black))',
 				'luxury-dark-gray': 'hsl(var(--luxury-dark-gray))',
 				'luxury-light-gray': 'hsl(var(--luxury-light-gray))',
-				'luxury-crimson': 'hsl(var(--luxury-crimson))'
+				'luxury-crimson': 'hsl(var(--luxury-crimson))',
+				'gold': 'hsl(var(--gold))'
 			},
 			backgroundImage: {
 				'gradient-hero': 'var(--gradient-hero)',

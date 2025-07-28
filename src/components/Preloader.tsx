@@ -10,32 +10,54 @@ const Preloader = ({ onComplete }: PreloaderProps) => {
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    // Check if preloader has been shown before
-    const hasSeenPreloader = localStorage.getItem('hasSeenPreloader');
-    
-    if (hasSeenPreloader) {
-      onComplete();
-      return;
+    let progressInterval: NodeJS.Timeout;
+    let isPageLoaded = false;
+
+    // Check if page is already loaded
+    if (document.readyState === 'complete') {
+      isPageLoaded = true;
     }
 
-    // Animate progress from 0 to 100 over 3 seconds
-    const interval = setInterval(() => {
+    // Listen for page load
+    const handleLoad = () => {
+      isPageLoaded = true;
+    };
+
+    window.addEventListener('load', handleLoad);
+
+    // Animate progress, but complete only when page is loaded
+    progressInterval = setInterval(() => {
       setProgress((prev) => {
-        const newProgress = prev + 2;
-        if (newProgress >= 100) {
-          clearInterval(interval);
+        const newProgress = prev + 1.5;
+        
+        // If we've reached 100% and page is loaded, complete
+        if (newProgress >= 100 && isPageLoaded) {
+          clearInterval(progressInterval);
           setTimeout(() => {
             setIsComplete(true);
-            localStorage.setItem('hasSeenPreloader', 'true');
             setTimeout(onComplete, 500);
-          }, 200);
+          }, 300);
           return 100;
         }
+        
+        // If page is loaded but progress isn't 100%, speed up
+        if (isPageLoaded && newProgress < 100) {
+          return Math.min(newProgress + 5, 100);
+        }
+        
+        // If progress reaches 95% but page isn't loaded, slow down
+        if (newProgress >= 95 && !isPageLoaded) {
+          return Math.min(prev + 0.5, 98);
+        }
+        
         return newProgress;
       });
-    }, 60);
+    }, 50);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(progressInterval);
+      window.removeEventListener('load', handleLoad);
+    };
   }, [onComplete]);
 
   return (
@@ -48,40 +70,101 @@ const Preloader = ({ onComplete }: PreloaderProps) => {
           className="fixed inset-0 z-50 flex items-center justify-center bg-luxury-black"
         >
           <div className="text-center">
-            {/* Animated Logo */}
+            {/* Ferrari Logo */}
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="mb-8"
+              initial={{ scale: 0.8, opacity: 0, rotateY: -15 }}
+              animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="mb-8 relative"
             >
-              <svg
-                width="120"
-                height="120"
-                viewBox="0 0 120 120"
-                className="mx-auto"
-              >
-                <motion.path
-                  d="M60 10 L95 30 L95 70 L60 90 L25 70 L25 30 Z"
-                  fill="none"
-                  stroke="hsl(var(--luxury-crimson))"
-                  strokeWidth="3"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 2, ease: "easeInOut" }}
-                />
-                <motion.text
-                  x="60"
-                  y="65"
-                  textAnchor="middle"
-                  className="fill-luxury-crimson font-bold text-lg"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1, duration: 0.5 }}
+              <div className="relative mx-auto w-32 h-32">
+                {/* Glow effect */}
+                <div className="absolute inset-0 bg-luxury-crimson/20 rounded-full blur-xl scale-110" />
+                
+                {/* Ferrari Shield */}
+                <svg
+                  width="128"
+                  height="128"
+                  viewBox="0 0 128 128"
+                  className="mx-auto relative z-10 drop-shadow-2xl"
                 >
-                  LUXURY
-                </motion.text>
-              </svg>
+                  {/* Shield background with gradient */}
+                  <defs>
+                    <linearGradient id="ferrariGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="hsl(var(--luxury-crimson))" />
+                      <stop offset="50%" stopColor="#DC143C" />
+                      <stop offset="100%" stopColor="#8B0000" />
+                    </linearGradient>
+                    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FFD700" />
+                      <stop offset="50%" stopColor="#FFA500" />
+                      <stop offset="100%" stopColor="#FF8C00" />
+                    </linearGradient>
+                    <filter id="glow">
+                      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                      <feMerge> 
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  
+                  {/* Shield shape */}
+                  <motion.path
+                    d="M64 8 L20 28 L20 68 C20 88 64 120 64 120 C64 120 108 88 108 68 L108 28 Z"
+                    fill="url(#ferrariGradient)"
+                    stroke="url(#goldGradient)"
+                    strokeWidth="2"
+                    filter="url(#glow)"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 2, ease: "easeInOut" }}
+                  />
+                  
+                  {/* Ferrari Prancing Horse */}
+                  <motion.g
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 1.5, duration: 0.8 }}
+                  >
+                    <path
+                      d="M50 45 C52 42 58 40 62 42 C66 40 70 42 72 45 C74 48 72 52 70 54 C68 56 62 58 64 62 C66 66 70 68 72 72 C70 74 66 74 62 72 C58 74 54 74 52 72 C54 68 58 66 60 62 C62 58 56 56 54 54 C52 52 50 48 50 45 Z"
+                      fill="url(#goldGradient)"
+                      stroke="#000"
+                      strokeWidth="0.5"
+                    />
+                    {/* Horse details */}
+                    <circle cx="58" cy="48" r="1.5" fill="#000" />
+                    <path d="M56 52 Q58 54 60 52" stroke="#000" strokeWidth="0.5" fill="none" />
+                  </motion.g>
+                  
+                  {/* Ferrari text */}
+                  <motion.text
+                    x="64"
+                    y="95"
+                    textAnchor="middle"
+                    className="fill-gold font-bold text-sm tracking-wider"
+                    style={{ fontFamily: 'serif' }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 2, duration: 0.5 }}
+                  >
+                    FERRARI
+                  </motion.text>
+                </svg>
+                
+                {/* Animated light rays */}
+                <motion.div
+                  className="absolute inset-0 pointer-events-none"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                >
+                  <div className="absolute top-0 left-1/2 w-0.5 h-8 bg-gradient-to-t from-luxury-crimson/50 to-transparent transform -translate-x-1/2" />
+                  <div className="absolute bottom-0 left-1/2 w-0.5 h-8 bg-gradient-to-b from-luxury-crimson/50 to-transparent transform -translate-x-1/2" />
+                  <div className="absolute left-0 top-1/2 h-0.5 w-8 bg-gradient-to-l from-luxury-crimson/50 to-transparent transform -translate-y-1/2" />
+                  <div className="absolute right-0 top-1/2 h-0.5 w-8 bg-gradient-to-r from-luxury-crimson/50 to-transparent transform -translate-y-1/2" />
+                </motion.div>
+              </div>
             </motion.div>
 
             {/* Progress Bar */}
