@@ -7,6 +7,7 @@ import BrandMarquee from '@/components/BrandMarquee';
 import FeaturedInventory from '@/components/FeaturedInventory';
 import USPSection from '@/components/USPSection';
 import ContactForm from '@/components/ContactForm';
+import SuperCar from '@/components/SuperCar';
 
 const Index = () => {
   const [showPreloader, setShowPreloader] = useState(true);
@@ -40,6 +41,7 @@ const Index = () => {
         <HeroSection />
         <BrandMarquee />
         <FeaturedInventory />
+        <SuperCar />
         <USPSection />
         <ContactForm />
       </main>
