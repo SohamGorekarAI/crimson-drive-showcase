@@ -10,54 +10,23 @@ const Preloader = ({ onComplete }: PreloaderProps) => {
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    let progressInterval: NodeJS.Timeout;
-    let isPageLoaded = false;
-
-    // Check if page is already loaded
-    if (document.readyState === 'complete') {
-      isPageLoaded = true;
-    }
-
-    // Listen for page load
-    const handleLoad = () => {
-      isPageLoaded = true;
-    };
-
-    window.addEventListener('load', handleLoad);
-
-    // Animate progress, but complete only when page is loaded
-    progressInterval = setInterval(() => {
+    // Fixed 3-second loading animation
+    const interval = setInterval(() => {
       setProgress((prev) => {
-        const newProgress = prev + 1.5;
-        
-        // If we've reached 100% and page is loaded, complete
-        if (newProgress >= 100 && isPageLoaded) {
-          clearInterval(progressInterval);
+        const newProgress = prev + 2;
+        if (newProgress >= 100) {
+          clearInterval(interval);
           setTimeout(() => {
             setIsComplete(true);
             setTimeout(onComplete, 500);
-          }, 300);
+          }, 200);
           return 100;
         }
-        
-        // If page is loaded but progress isn't 100%, speed up
-        if (isPageLoaded && newProgress < 100) {
-          return Math.min(newProgress + 5, 100);
-        }
-        
-        // If progress reaches 95% but page isn't loaded, slow down
-        if (newProgress >= 95 && !isPageLoaded) {
-          return Math.min(prev + 0.5, 98);
-        }
-        
         return newProgress;
       });
-    }, 50);
+    }, 60);
 
-    return () => {
-      clearInterval(progressInterval);
-      window.removeEventListener('load', handleLoad);
-    };
+    return () => clearInterval(interval);
   }, [onComplete]);
 
   return (
