@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, Heart, ArrowRight } from 'lucide-react';
+import { Eye, Heart, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import featuredCar1 from '@/assets/featured-car-1.jpg';
 import featuredCar2 from '@/assets/featured-car-2.jpg';
 import featuredCar3 from '@/assets/featured-car-3.jpg';
@@ -22,6 +22,7 @@ interface Vehicle {
 
 const FeaturedInventory = () => {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const vehicles: Vehicle[] = [
     {
@@ -65,8 +66,121 @@ const FeaturedInventory = () => {
         acceleration: "2.6s 0-60mph",
         topSpeed: "205 mph"
       }
+    },
+    {
+      id: 4,
+      name: "F-Type R",
+      brand: "Jaguar",
+      price: "$126,500",
+      year: 2024,
+      image: featuredCar1,
+      specs: {
+        engine: "5.0L V8 Supercharged",
+        power: "575 HP",
+        acceleration: "3.5s 0-60mph",
+        topSpeed: "186 mph"
+      }
+    },
+    {
+      id: 5,
+      name: "GLE 63 S AMG",
+      brand: "Mercedes-Benz",
+      price: "$174,900",
+      year: 2024,
+      image: featuredCar2,
+      specs: {
+        engine: "4.0L V8 Biturbo",
+        power: "603 HP",
+        acceleration: "3.7s 0-60mph",
+        topSpeed: "174 mph"
+      }
+    },
+    {
+      id: 6,
+      name: "Cayenne Turbo",
+      brand: "Porsche",
+      price: "$167,500",
+      year: 2024,
+      image: featuredCar3,
+      specs: {
+        engine: "4.0L V8 Twin-Turbo",
+        power: "541 HP",
+        acceleration: "3.9s 0-60mph",
+        topSpeed: "177 mph"
+      }
     }
   ];
+
+  // Auto-rotation effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % vehicles.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [vehicles.length]);
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % vehicles.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + vehicles.length) % vehicles.length);
+  };
+
+  const getSlidePosition = (index: number) => {
+    const totalSlides = vehicles.length;
+    const activeIndex = currentIndex;
+    let position = index - activeIndex;
+    
+    if (position < -totalSlides / 2) position += totalSlides;
+    if (position > totalSlides / 2) position -= totalSlides;
+    
+    return position;
+  };
+
+  const getSlideStyles = (position: number) => {
+    const isCenter = position === 0;
+    const isAdjacent = Math.abs(position) === 1;
+    const isSideVisible = Math.abs(position) <= 2;
+    
+    if (!isSideVisible) {
+      return {
+        opacity: 0,
+        scale: 0.7,
+        x: position > 0 ? 400 : -400,
+        z: -200,
+        rotateY: position > 0 ? -45 : 45
+      };
+    }
+    
+    if (isCenter) {
+      return {
+        opacity: 1,
+        scale: 1,
+        x: 0,
+        z: 0,
+        rotateY: 0
+      };
+    }
+    
+    if (isAdjacent) {
+      return {
+        opacity: 0.7,
+        scale: 0.85,
+        x: position * 280,
+        z: -100,
+        rotateY: position * 25
+      };
+    }
+    
+    return {
+      opacity: 0.4,
+      scale: 0.75,
+      x: position * 320,
+      z: -150,
+      rotateY: position * 35
+    };
+  };
 
   return (
     <section id="inventory" className="py-24 bg-luxury-black">
@@ -89,84 +203,146 @@ const FeaturedInventory = () => {
           </p>
         </motion.div>
 
-        {/* Vehicle Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {vehicles.map((vehicle, index) => (
-            <motion.div
-              key={vehicle.id}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.2 }}
-              viewport={{ once: true }}
-              whileHover={{ y: -10 }}
-              className="luxury-card group cursor-pointer"
-              onClick={() => setSelectedVehicle(vehicle)}
-            >
-              {/* Vehicle Image */}
-              <div className="relative overflow-hidden rounded-lg mb-6">
-                <motion.img
-                  src={vehicle.image}
-                  alt={`${vehicle.brand} ${vehicle.name}`}
-                  className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-luxury-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                
-                {/* Hover Actions */}
-                <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="p-2 bg-luxury-black/80 text-luxury-light-gray hover:text-luxury-crimson rounded-full backdrop-blur-sm transition-colors duration-300"
-                  >
-                    <Heart size={18} />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="p-2 bg-luxury-black/80 text-luxury-light-gray hover:text-luxury-crimson rounded-full backdrop-blur-sm transition-colors duration-300"
-                  >
-                    <Eye size={18} />
-                  </motion.button>
-                </div>
+        {/* Circular Carousel */}
+        <div className="relative h-[600px] flex items-center justify-center overflow-hidden">
+          {/* Navigation Arrows */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={prevSlide}
+            className="absolute left-8 z-20 text-luxury-light-gray hover:text-luxury-crimson transition-colors duration-300"
+          >
+            <ChevronLeft size={32} strokeWidth={1.5} />
+          </motion.button>
+          
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={nextSlide}
+            className="absolute right-8 z-20 text-luxury-light-gray hover:text-luxury-crimson transition-colors duration-300"
+          >
+            <ChevronRight size={32} strokeWidth={1.5} />
+          </motion.button>
 
-                {/* Year Badge */}
-                <div className="absolute bottom-4 left-4 px-3 py-1 bg-luxury-crimson text-luxury-light-gray text-sm font-semibold rounded-full">
-                  {vehicle.year}
-                </div>
-              </div>
-
-              {/* Vehicle Info */}
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-2xl font-bold text-luxury-light-gray group-hover:text-luxury-crimson transition-colors duration-300">
-                    {vehicle.brand}
-                  </h3>
-                  <p className="text-luxury-light-gray/70 text-lg">
-                    {vehicle.name}
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-3xl font-bold text-luxury-crimson">
-                    {vehicle.price}
-                  </span>
+          {/* Carousel Items */}
+          <div className="relative w-full h-full flex items-center justify-center">
+            {vehicles.map((vehicle, index) => {
+              const position = getSlidePosition(index);
+              const styles = getSlideStyles(position);
+              const isVisible = Math.abs(position) <= 2;
+              
+              if (!isVisible) return null;
+              
+              return (
+                <motion.div
+                  key={vehicle.id}
+                  className="absolute w-80 cursor-pointer"
+                  animate={styles}
+                  transition={{
+                    duration: 0.6,
+                    ease: "easeInOut"
+                  }}
+                  style={{
+                    transformStyle: "preserve-3d",
+                    perspective: "1000px"
+                  }}
+                  onClick={() => setSelectedVehicle(vehicle)}
+                >
                   <motion.div
-                    whileHover={{ x: 5 }}
-                    className="flex items-center text-luxury-light-gray/60 group-hover:text-luxury-crimson transition-colors duration-300"
+                    className="luxury-card group"
+                    whileHover={position === 0 ? { y: -10 } : {}}
                   >
-                    <span className="text-sm font-medium mr-2">View Details</span>
-                    <ArrowRight size={16} />
-                  </motion.div>
-                </div>
+                    {/* Vehicle Image */}
+                    <div className="relative overflow-hidden rounded-lg mb-6">
+                      <motion.img
+                        src={vehicle.image}
+                        alt={`${vehicle.brand} ${vehicle.name}`}
+                        className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-luxury-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      
+                      {/* Hover Actions - only visible on center card */}
+                      {position === 0 && (
+                        <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="p-2 bg-luxury-black/80 text-luxury-light-gray hover:text-luxury-crimson rounded-full backdrop-blur-sm transition-colors duration-300"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Heart size={18} />
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="p-2 bg-luxury-black/80 text-luxury-light-gray hover:text-luxury-crimson rounded-full backdrop-blur-sm transition-colors duration-300"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Eye size={18} />
+                          </motion.button>
+                        </div>
+                      )}
 
-                {/* Quick Specs */}
-                <div className="grid grid-cols-2 gap-2 text-sm text-luxury-light-gray/60">
-                  <div>{vehicle.specs.power}</div>
-                  <div>{vehicle.specs.acceleration}</div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+                      {/* Year Badge */}
+                      <div className="absolute bottom-4 left-4 px-3 py-1 bg-luxury-crimson text-luxury-light-gray text-sm font-semibold rounded-full">
+                        {vehicle.year}
+                      </div>
+                    </div>
+
+                    {/* Vehicle Info */}
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-2xl font-bold text-luxury-light-gray group-hover:text-luxury-crimson transition-colors duration-300">
+                          {vehicle.brand}
+                        </h3>
+                        <p className="text-luxury-light-gray/70 text-lg">
+                          {vehicle.name}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-3xl font-bold text-luxury-crimson">
+                          {vehicle.price}
+                        </span>
+                        {position === 0 && (
+                          <motion.div
+                            whileHover={{ x: 5 }}
+                            className="flex items-center text-luxury-light-gray/60 group-hover:text-luxury-crimson transition-colors duration-300"
+                          >
+                            <span className="text-sm font-medium mr-2">View Details</span>
+                            <ArrowRight size={16} />
+                          </motion.div>
+                        )}
+                      </div>
+
+                      {/* Quick Specs - only show on center card */}
+                      {position === 0 && (
+                        <div className="grid grid-cols-2 gap-2 text-sm text-luxury-light-gray/60">
+                          <div>{vehicle.specs.power}</div>
+                          <div>{vehicle.specs.acceleration}</div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Carousel Indicators */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            {vehicles.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentIndex 
+                    ? 'bg-luxury-crimson w-6' 
+                    : 'bg-luxury-light-gray/30 hover:bg-luxury-light-gray/50'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* View All Button */}
