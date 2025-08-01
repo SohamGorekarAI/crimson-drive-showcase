@@ -16,17 +16,23 @@ const Navbar = () => {
   }, []);
 
   const navItems = [
-    { name: 'Home', href: '#home' },
-    { name: 'Inventory', href: '#inventory' },
+    { name: 'Home', href: '/' },
+    { name: 'Inventory', href: '/inventory' },
     { name: 'Services', href: '#services' },
     { name: 'About', href: '#about' },
     { name: 'Contact', href: '#contact' }
   ];
 
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+  const handleNavigation = (href: string) => {
+    if (href.startsWith('/')) {
+      // Route navigation
+      window.location.href = href;
+    } else {
+      // Scroll to section
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
     }
     setIsMobileMenuOpen(false);
   };
@@ -49,7 +55,7 @@ const Navbar = () => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="cursor-pointer"
-              onClick={() => scrollToSection('#home')}
+              onClick={() => handleNavigation('/')}
             >
               <div className="flex items-center space-x-2">
                 <div className={`w-8 h-8 ${isScrolled ? 'bg-luxury-crimson' : 'bg-luxury-light-gray'} rounded transition-colors duration-300`} />
@@ -67,7 +73,7 @@ const Navbar = () => {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1, duration: 0.5 }}
-                  onClick={() => scrollToSection(item.href)}
+                  onClick={() => handleNavigation(item.href)}
                   className="relative group text-luxury-light-gray hover:text-luxury-crimson transition-colors duration-300 font-medium tracking-wide"
                 >
                   {item.name}
@@ -113,7 +119,7 @@ const Navbar = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 30 }}
                   transition={{ delay: index * 0.1, duration: 0.5 }}
-                  onClick={() => scrollToSection(item.href)}
+                  onClick={() => handleNavigation(item.href)}
                   className="text-2xl font-bold text-luxury-light-gray hover:text-luxury-crimson transition-colors duration-300 tracking-wide"
                 >
                   {item.name}
